@@ -1,0 +1,2 @@
+# LoopRecyclerViewPager
+LooperRecyclerViewPager  replace  LooperViewPager
