@@ -184,7 +184,7 @@ public class LooperRecyclerViewPager extends RecyclerView {
                 if (layoutDirection == 0) {
                     scrollOffset = (mScreenWidth - mPageWidth) / 2;
                 } else {
-                    scrollOffset = (mScreenHeight - mPageWidth) / 2;
+                    scrollOffset = (mScreenHeight - mPageHeight) / 2;
                 }
                 if (layoutManager instanceof GridLayoutManager) {
                     ((GridLayoutManager) layoutManager).scrollToPositionWithOffset(realAdapterCount * 2, scrollOffset);
