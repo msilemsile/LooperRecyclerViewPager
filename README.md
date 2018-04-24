@@ -9,13 +9,15 @@ in case, the RecyclerView has 4 children!!!
 
 When current scroll position = startEdge|| endEdge ,Then current scroll position will reset = initPosition
 
-----Config----start
+```
 
 LooperRecyclerViewPager.setLayoutManager(xxx)
 
 LooperRecyclerViewPager.setPageParams(int pageMargin,int pageSpace)
 
 LooperRecyclerViewPager.setAdapter(xxx)
+
+```
 
 ----Config----end
 
