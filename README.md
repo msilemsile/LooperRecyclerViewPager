@@ -12,7 +12,9 @@ When current scroll position = startEdge|| endEdge ,Then current scroll position
 ----Config----start
 
 LooperRecyclerViewPager.setLayoutManager(xxx)
+
 LooperRecyclerViewPager.setPageParams(int pageMargin,int pageSpace)
+
 LooperRecyclerViewPager.setAdapter(xxx)
 
 ----Config----end
