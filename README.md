@@ -19,8 +19,6 @@ LooperRecyclerViewPager.setAdapter(xxx)
 
 ```
 
-----Config----end
-
 orientation = HORIZONTAL
 
 ![Image](https://github.com/msilemsile/LooperRecyclerViewPager/blob/master/demo.gif)
