@@ -1,5 +1,4 @@
-# LoopRecyclerViewPager
-
+# Use
 ```
 
 LooperRecyclerViewPager.setLayoutManager(xxx)
