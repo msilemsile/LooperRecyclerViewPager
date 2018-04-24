@@ -158,6 +158,7 @@ public class LooperRecyclerViewPager extends RecyclerView {
     public void setPageMargin(int mPageMargin) {
         this.mPageMargin = mPageMargin;
         mPageWidth += 2 * mPageMargin;
+        mPageHeight += 2 * mPageMargin;
     }
 
     public void setOnPageChangeListener(OnPageChangeListener mPageChangeListener) {
