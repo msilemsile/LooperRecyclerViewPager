@@ -10,3 +10,5 @@ in case, the RecyclerView has 4 children!!!
 When current scroll position = startEdge|| endEdge ,Then current scroll position will reset = initPosition
 
 ![Image](https://github.com/msilemsile/LooperRecyclerViewPager/blob/master/demo.gif)
+
+![Image](https://github.com/msilemsile/LooperRecyclerViewPager/blob/master/demo2.gif)
