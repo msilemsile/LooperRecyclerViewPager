@@ -140,7 +140,7 @@ public class LooperRecyclerViewPager extends RecyclerView {
         }
     }
 
-    public void setPageMargin(int pageMargin, int pageSpace) {
+    public void setPageParams(int pageMargin, int pageSpace) {
         LayoutManager layoutManager = getLayoutManager();
         if (layoutManager == null) {
             return;
