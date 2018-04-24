@@ -1,10 +1,7 @@
 package me.msile.tran.kotlintrandemo.looprecyclerviewpager;
 
 import android.content.Context;
-import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -23,9 +20,10 @@ public class LooperRecyclerViewPager extends RecyclerView {
     private static final String TAG = "LooperRecyclerViewPager";
 
     private LooperRecyclerAdapterWrapper mAdapterWrapper;
-    private int mPageWidth;
-    private int mPageHeight;
+    private RecyclerView.Adapter mRealAdapter;
+    private int mPageWidth, mPageHeight;
     private int mPageMargin;
+    private int mPageSpace;
     private OnPageChangeListener mOnPageChangeListener;
     private int mScrollX;
     private int mScrollY;
@@ -34,7 +32,7 @@ public class LooperRecyclerViewPager extends RecyclerView {
     private int mCurrentOffset;
     private LooperPagerSnapHelper mPagerSnapHelper;
     private int mScrollState;
-    private int mScreenWidth, mScreenHeight;
+    private int mRvWidth, mRvHeight;
 
     public LooperRecyclerViewPager(Context context) {
         super(context);
@@ -66,20 +64,15 @@ public class LooperRecyclerViewPager extends RecyclerView {
     @Override
     protected void onMeasure(int widthSpec, int heightSpec) {
         super.onMeasure(widthSpec, heightSpec);
-        if (mPageWidth <= 0 || mPageHeight <= 0) {
-            mPageWidth = getMeasuredWidth();
-            mPageHeight = getMeasuredHeight();
-            if (needInitScrollPos && mPageWidth > 0 && mPageHeight > 0) {
-                int realAdapterCount = mAdapterWrapper.getRealAdapterCount();
-                mScrollX = mPageWidth * realAdapterCount;
-                mScrollY = mPageHeight * realAdapterCount;
-            }
+        mRvWidth = getMeasuredWidth();
+        mRvHeight = getMeasuredHeight();
+        if (needInitScrollPos && mRvWidth > 0 && mRvHeight > 0) {
+            setRealAdapter();
+            needInitScrollPos = false;
         }
     }
 
     private void init() {
-        mScreenWidth = getResources().getDisplayMetrics().widthPixels;
-        mScreenHeight = getResources().getDisplayMetrics().heightPixels;
         mPagerSnapHelper = new LooperPagerSnapHelper(this);
         mPagerSnapHelper.attachToRecyclerView(this);
         addOnScrollListener(new OnScrollListener() {
@@ -139,26 +132,64 @@ public class LooperRecyclerViewPager extends RecyclerView {
         }
         int layoutDirection = layoutManager.canScrollHorizontally() ? 0 : 1;
         if (layoutDirection == 0) {
-            mCurrentPosition = mScrollX / mPageWidth;
-            mCurrentOffset = mScrollX - mCurrentPosition * mPageWidth;
+            mCurrentPosition = mScrollX / (mPageWidth + mPageMargin);
+            mCurrentOffset = mScrollX - mCurrentPosition * (mPageWidth + mPageMargin);
         } else {
-            mCurrentPosition = mScrollY / mPageHeight;
-            mCurrentOffset = mScrollY - mCurrentPosition * mPageHeight;
+            mCurrentPosition = mScrollY / (mPageHeight + mPageMargin);
+            mCurrentOffset = mScrollY - mCurrentPosition * (mPageHeight + mPageMargin);
         }
     }
 
-    public void setPageWidth(int mPageWidth) {
-        this.mPageWidth = mPageWidth;
+    public void setPageMargin(int pageMargin, int pageSpace) {
+        LayoutManager layoutManager = getLayoutManager();
+        if (layoutManager == null) {
+            return;
+        }
+        this.mPageMargin = pageMargin;
+        this.mPageSpace = pageSpace;
+        int layoutDirection = layoutManager.canScrollHorizontally() ? 0 : 1;
+        if (layoutDirection == 0) {
+            setPadding(pageMargin / 2 + mPageSpace, 0, pageMargin / 2 + mPageSpace, 0);
+        } else {
+            setPadding(0, pageMargin / 2 + mPageSpace, 0, pageMargin / 2 + mPageSpace);
+        }
+        setClipToPadding(false);
+        setClipChildren(false);
     }
 
-    public void setPageHeight(int mPageHeight) {
-        this.mPageHeight = mPageHeight;
-    }
-
-    public void setPageMargin(int mPageMargin) {
-        this.mPageMargin = mPageMargin;
-        mPageWidth += 2 * mPageMargin;
-        mPageHeight += 2 * mPageMargin;
+    private void calculatePageParams() {
+        LayoutManager layoutManager = getLayoutManager();
+        if (layoutManager == null) {
+            return;
+        }
+        int layoutDirection = layoutManager.canScrollHorizontally() ? 0 : 1;
+        if (mRvWidth > 0) {
+            if (layoutDirection == 0) {
+                int maxPageWidth = mRvWidth - 2 * mPageMargin - 2 * mPageSpace;
+                if (maxPageWidth <= 0) {
+                    maxPageWidth = mRvWidth;
+                    mPageMargin = 0;
+                    mPageSpace = 0;
+                }
+                mPageWidth = maxPageWidth;
+            } else {
+                mPageWidth = mRvWidth;
+            }
+        }
+        if (mRvHeight > 0) {
+            if (layoutDirection == 1) {
+                int maxPageHeight = mRvHeight - 2 * mPageMargin - 2 * mPageSpace;
+                if (maxPageHeight <= 0) {
+                    maxPageHeight = mRvHeight;
+                    mPageMargin = 0;
+                    mPageSpace = 0;
+                }
+                mPageHeight = maxPageHeight;
+            } else {
+                mPageHeight = mRvHeight;
+            }
+        }
+        Log.d(TAG, "--calculatePageParams--" + "rvWidth = " + mRvWidth + " rvHeight = " + mRvHeight + " pageWidth = " + mPageWidth + " pageHeight = " + mPageHeight + " margin = " + mPageMargin + " space = " + mPageSpace);
     }
 
     public void setOnPageChangeListener(OnPageChangeListener mPageChangeListener) {
@@ -168,40 +199,34 @@ public class LooperRecyclerViewPager extends RecyclerView {
     @Override
     public void setAdapter(Adapter adapter) {
         if (adapter != null) {
-            mAdapterWrapper = new LooperRecyclerAdapterWrapper(adapter);
+            mRealAdapter = adapter;
+            setRealAdapter();
+        }
+    }
+
+    private void setRealAdapter() {
+        LayoutManager layoutManager = getLayoutManager();
+        if (layoutManager == null) {
+            return;
+        }
+        if (mRvWidth > 0 && mRvHeight > 0 && mRealAdapter != null) {
+            calculatePageParams();
+            int layoutDirection = getLayoutManager().canScrollHorizontally() ? 0 : 1;
+            mAdapterWrapper = new LooperRecyclerAdapterWrapper(mRealAdapter, layoutDirection);
+            mAdapterWrapper.setRvPageParams(mPageMargin, mPageWidth, mPageHeight);
             super.setAdapter(mAdapterWrapper);
             scrollToInitPosition();
+        } else {
+            needInitScrollPos = true;
         }
     }
 
     private void scrollToInitPosition() {
         int realAdapterCount = mAdapterWrapper.getRealAdapterCount();
         if (realAdapterCount > 1) {
-            if (mPageMargin > 0) {
-                int scrollOffset = 0;
-                LayoutManager layoutManager = getLayoutManager();
-                int layoutDirection = layoutManager.canScrollHorizontally() ? 0 : 1;
-                if (layoutDirection == 0) {
-                    scrollOffset = (mScreenWidth - mPageWidth) / 2;
-                } else {
-                    scrollOffset = (mScreenHeight - mPageHeight) / 2;
-                }
-                if (layoutManager instanceof GridLayoutManager) {
-                    ((GridLayoutManager) layoutManager).scrollToPositionWithOffset(realAdapterCount * 2, scrollOffset);
-                } else if (layoutManager instanceof LinearLayoutManager) {
-                    ((LinearLayoutManager) layoutManager).scrollToPositionWithOffset(realAdapterCount * 2, scrollOffset);
-                } else if (layoutManager instanceof StaggeredGridLayoutManager) {
-                    ((StaggeredGridLayoutManager) layoutManager).scrollToPositionWithOffset(realAdapterCount * 2, scrollOffset);
-                }
-            } else {
-                scrollToPosition(realAdapterCount * 2);
-            }
-            if (mPageWidth > 0 && mPageHeight > 0) {
-                mScrollX = mPageWidth * realAdapterCount;
-                mScrollY = mPageHeight * realAdapterCount;
-            } else {
-                needInitScrollPos = true;
-            }
+            mScrollX = (mPageWidth + mPageMargin) * realAdapterCount;
+            mScrollY = (mPageHeight + mPageMargin) * realAdapterCount;
+            scrollToPosition(realAdapterCount * 2);
             Log.d(TAG, "--scrollToInitPosition--");
         }
     }

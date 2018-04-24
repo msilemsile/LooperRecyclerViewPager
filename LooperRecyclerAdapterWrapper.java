@@ -10,15 +10,36 @@ import android.view.ViewGroup;
 public class LooperRecyclerAdapterWrapper extends RecyclerView.Adapter {
 
     private RecyclerView.Adapter realAdapter;
+    private int mLayoutDirection;
+    private int mPageMargin;
+    private int mPageWidth;
+    private int mPageHeight;
 
-    public LooperRecyclerAdapterWrapper(RecyclerView.Adapter realAdapter) {
+    LooperRecyclerAdapterWrapper(RecyclerView.Adapter realAdapter, int layoutDirection) {
         this.realAdapter = realAdapter;
+        mLayoutDirection = layoutDirection;
+    }
+
+    void setRvPageParams(int pageMargin, int pageWidth, int pageHeight) {
+        mPageMargin = pageMargin;
+        mPageWidth = pageWidth;
+        mPageHeight = pageHeight;
     }
 
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         if (realAdapter != null) {
-            return realAdapter.onCreateViewHolder(parent, viewType);
+            RecyclerView.ViewHolder viewHolder = realAdapter.onCreateViewHolder(parent, viewType);
+            RecyclerView.LayoutParams layoutParams = new RecyclerView.LayoutParams(mPageWidth, mPageHeight);
+            if (mLayoutDirection == 0) {
+                layoutParams.rightMargin = mPageMargin / 2;
+                layoutParams.leftMargin = mPageMargin / 2;
+            } else {
+                layoutParams.topMargin = mPageMargin / 2;
+                layoutParams.bottomMargin = mPageMargin / 2;
+            }
+            viewHolder.itemView.setLayoutParams(layoutParams);
+            return viewHolder;
         }
         return null;
     }
