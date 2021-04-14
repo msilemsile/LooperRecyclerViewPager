@@ -1,7 +1,7 @@
+已过时，请用官方控件 ViewPager2（https://developer.android.google.cn/jetpack/androidx/releases/viewpager2）
+
 # Use
 ```
-
-已过时，请用ViewPager2 （https://developer.android.google.cn/jetpack/androidx/releases/viewpager2）
 
 LooperRecyclerViewPager.setLayoutManager(xxx)
 
