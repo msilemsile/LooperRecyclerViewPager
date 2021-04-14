@@ -1,6 +1,8 @@
 # Use
 ```
 
+已过时，请用ViewPager2 （https://developer.android.google.cn/jetpack/androidx/releases/viewpager2）
+
 LooperRecyclerViewPager.setLayoutManager(xxx)
 
 LooperRecyclerViewPager.setPageParams(int pageMargin,int pageSpace)
