@@ -1,4 +1,4 @@
-已过时，请用官方控件 ViewPager2（https://developer.android.google.cn/jetpack/androidx/releases/viewpager2）
+已过时，请用官方控件 ViewPager2实现 (https://github.com/msilemsile/LooperRecyclerViewPager2)
 
 # Use
 ```
